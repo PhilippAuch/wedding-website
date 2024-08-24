@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: ${TARGET_NAMESPACE}
-          image: ghcr.io/PhilippAuch/wedding-website:action-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}
+          image: ghcr.io/philippauch/wedding-website:action-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}
           imagePullPolicy: Always
           resources:
             limits:
