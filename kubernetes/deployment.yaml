@@ -1,0 +1,69 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ${TARGET_NAMESPACE}
+  namespace: ${TARGET_NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${TARGET_NAMESPACE}
+  template:
+    metadata:
+      labels:
+        app: ${TARGET_NAMESPACE}
+    spec:
+      containers:
+        - name: ${TARGET_NAMESPACE}
+          image: ghcr.io/PhilippAuch/wedding-website:action-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: 400Mi
+            requests:
+              cpu: 200m
+              memory: 200Mi
+      restartPolicy: Always
+  revisionHistoryLimit: 10
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ${TARGET_NAMESPACE}
+  namespace: ${TARGET_NAMESPACE}
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: ${TARGET_NAMESPACE}
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: ${TARGET_NAMESPACE}
+  namespace: ${TARGET_NAMESPACE}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - hochzeit-auch.de
+      secretName: ${TARGET_NAMESPACE}-tls-secret
+  rules:
+    - host: hochzeit-auch.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${TARGET_NAMESPACE}
+                port:
+                  number: 80
