@@ -1,0 +1,42 @@
+---
+name: Workflow
+
+on:
+  push:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      branch-name:
+        required: true
+        type: string
+        default: ${{ github.ref }}
+
+permissions:
+  packages: write
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  PROJECT_NAME: PhilippAuch/wedding-website
+
+jobs:
+  init:
+    uses: PhilippAuch/workflows/.github/workflows/init.yaml@main
+
+  build:
+    uses: PhilippAuch/workflows/.github/workflows/buildDocker.yaml@main
+    permissions:
+      packages: write
+      contents: read
+    with:
+      subfolder: './'
+      branch-name: '${{ inputs.branch-name }}'
+
+  deploy:
+    uses: PhilippAuch/workflows/.github/workflows/deployTemplate.yaml@main
+    needs: [build]
+    with:
+      subfolder: './kubernetes/'
+    secrets:
+      KUBE_PULL_SECRET: ${{ secrets.KUBE_PULL_SECRET }}
+      KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
