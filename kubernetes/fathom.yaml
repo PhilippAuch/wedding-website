@@ -1,0 +1,63 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: fathom
+  namespace: ${TARGET_NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fathom
+  template:
+    metadata:
+      labels:
+        app: fathom
+    spec:
+      containers:
+        - name: fathom
+          image: usefathom/fathom:latest
+          imagePullPolicy: Always
+      restartPolicy: Always
+  revisionHistoryLimit: 10
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: fathom
+  namespace: ${TARGET_NAMESPACE}
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: fathom
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: fathom
+  namespace: ${TARGET_NAMESPACE}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - fathom.hochzeit-auch.de
+      secretName: fathom-tls-secret
+  rules:
+    - host: fathom.hochzeit-auch.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fathom
+                port:
+                  number: 80
