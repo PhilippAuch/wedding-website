@@ -1,10 +1,13 @@
-FROM node:22.2.0-alpine3.18 AS builder
+FROM node:22.2.0-alpine3.19 AS builder
 WORKDIR /app
 
 RUN apk update && apk add tzdata openssh-client git
 ENV TZ=Europe/Berlin
 RUN npm install -g gulp
 
+COPY ./sass/ ./sass/
+COPY ./gulpfile.js ./
+COPY ./js/scripts.js ./js/
 COPY ./package*.json ./
 RUN npm install --ignore-scripts=false
 RUN gulp
