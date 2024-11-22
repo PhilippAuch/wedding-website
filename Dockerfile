@@ -1,4 +1,4 @@
-FROM node:23.1.0-alpine3.19 AS builder
+FROM node:23.3.0-alpine3.19 AS builder
 WORKDIR /app
 
 RUN apk update && apk add tzdata openssh-client git
