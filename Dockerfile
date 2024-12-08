@@ -14,9 +14,9 @@
 
 FROM nginx:1.25.1-alpine3.17 AS runner
 COPY ./default.conf /etc/nginx/conf.d/default.conf
-COPY ./index.html /usr/share/nginx/html
-COPY ./*.ico /usr/share/nginx/html
-COPY ./*.png /usr/share/nginx/html
+COPY ./index.html /usr/share/nginx/html/index.html
+COPY ./*.ico /usr/share/nginx/html/
+COPY ./*.png /usr/share/nginx/html/
 COPY ./img/* /usr/share/nginx/html/img/
 # COPY --from=builder /app/css/* /usr/share/nginx/html/css/
 # COPY --from=builder /app/js/*min.js /usr/share/nginx/html/js
